@@ -1,0 +1,3 @@
+Layer Pairs Export File for PCB: Y:\RinaBoard\CAD\RinaLEDs\Board4layer.PcbDoc
+LayersSetName=Top_Bot_Thru_Holes|DrillFile=board4layer-roundholes.txt|DrillLayers=gtl,g1,g2,gbl
+LayersSetName=Top_Bot_Slot_Holes|DrillFile=board4layer-slotholes.txt|DrillLayers=gtl,g1,g2,gbl
