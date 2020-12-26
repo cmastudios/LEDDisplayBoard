@@ -4,6 +4,11 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>drv_nrf24l01.h</itemPath>
+      <itemPath>drv_ws2812b.h</itemPath>
+      <itemPath>images.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="f1" displayName="Images" projectFiles="true">
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -16,11 +21,15 @@
       <itemPath>startup_samc21j18a.c</itemPath>
       <itemPath>system_samc21j18a.c</itemPath>
       <itemPath>main.c</itemPath>
+      <itemPath>drv_nrf24l01.c</itemPath>
+      <itemPath>drv_ws2812b.c</itemPath>
+      <itemPath>images.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
+      <itemPath>images/build.py</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -34,7 +43,7 @@
         <platformTool>AtmelIceTool</platformTool>
         <languageToolchain>ARM</languageToolchain>
         <languageToolchainVersion>9.3.1</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <packs>
         <pack name="SAMC21_DFP" vendor="Microchip" version="3.3.72"/>
@@ -51,7 +60,7 @@
         </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
-          <parseOnProdLoad>false</parseOnProdLoad>
+          <parseOnProdLoad>true</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
         <subordinates>
@@ -115,7 +124,7 @@
         <property key="default-bitfield-type" value="false"/>
         <property key="default-char-type" value="false"/>
         <property key="extra-include-directories" value=""/>
-        <property key="extra-warnings" value="false"/>
+        <property key="extra-warnings" value="true"/>
         <property key="fast-math" value="false"/>
         <property key="garbage-collect-data" value="false"/>
         <property key="garbage-collect-functions" value="true"/>
@@ -133,6 +142,7 @@
         <property key="undefined-identifier" value="false"/>
         <property key="unsafe-math" value="false"/>
         <property key="verbose" value="false"/>
+        <appendMe value="-g"/>
       </ARM-GCC>
       <ARM-Global>
         <property key="bin" value="false"/>
@@ -166,6 +176,8 @@
       </ARM-LD>
       <AtmelIceTool>
         <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="arm.use_vtor" value="false"/>
+        <property key="arm.vtor_adr" value="exception_table"/>
         <property key="communication.activationmode" value="nohv"/>
         <property key="communication.interface" value="swd"/>
         <property key="communication.speed" value="2.000"/>
@@ -175,6 +187,7 @@
         <property key="firmware.toolpack"
                   value="Press to select which tool pack to use"/>
         <property key="firmware.update.action" value="firmware.update.use.latest"/>
+        <property key="lastid" value=""/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
         <property key="memories.configurationmemory" value="true"/>
@@ -199,6 +212,9 @@
         <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveuserid" value="false"/>
         <property key="programoptions.programuserotp" value="false"/>
+        <property key="script.log_level" value="0"/>
+        <property key="script.reset_delay" value="0"/>
+        <property key="script.show_output" value="false"/>
         <property key="toolpack.updateoptions"
                   value="toolpack.updateoptions.uselatestoolpack"/>
         <property key="toolpack.updateoptions.packversion"
