@@ -14,12 +14,14 @@
 
 static inline void delay_cycles(const uint32_t n)
 {
-	if (n > 0) {
+	if (n > 0)
+	{
 		SysTick->LOAD = n;
 		SysTick->VAL = 0;
 
-		while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk)) {
-            //asm("wfi\r\n");
+		while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+		{
+			//asm("wfi\r\n");
 		};
 	}
 }
@@ -33,33 +35,35 @@ static inline void delay_cycles(const uint32_t n)
 static uint8_t spi_res = 0;
 static uint8_t rx_data[32] = {0};
 
-enum display_target {
+enum display_target
+{
 	FACE_1,
 	CSE467,
 	WASHU,
 	ERROR_BATTERY,
 	ERROR_WIRELESS,
-	
+
 	DISPLAY_COUNT
 } displayMode = FACE_1;
 
 static const struct image * displayConfig[DISPLAY_COUNT] = {
-    [FACE_1] = &image_face,
-    [CSE467] = &image_cse467,
-    [WASHU] = &image_washu,
-    [ERROR_BATTERY] = &image_error_battery,
-    [ERROR_WIRELESS] = &image_error_wireless,
+	[FACE_1] = &image_face,
+	[CSE467] = &image_cse467,
+	[WASHU] = &image_washu,
+	[ERROR_BATTERY] = &image_error_battery,
+	[ERROR_WIRELESS] = &image_error_wireless,
 };
 
 // takes at least 7ms to return
+
 static void display_image(const struct image *image)
 {
-    delay_us(350); // probably could omit this cuz each strip takes 1.2ms to complete
-    ws_transmit(LED_0, image->eyes, 40*3);
-    ws_transmit(LED_1, image->eyes + 40*3, 40*3);
-    ws_transmit(LED_2, image->eyes + 40*3*2, 40*3);
-    ws_transmit(LED_3, image->eyes + 40*3*3, 40*3);
-    ws_transmit(LED_4, image->mouth, 60*3);
+	delay_us(350); // probably could omit this cuz each strip takes 1.2ms to complete
+	ws_transmit(LED_0, image->eyes, 40 * 3);
+	ws_transmit(LED_1, image->eyes + 40 * 3, 40 * 3);
+	ws_transmit(LED_2, image->eyes + 40 * 3 * 2, 40 * 3);
+	ws_transmit(LED_3, image->eyes + 40 * 3 * 3, 40 * 3);
+	ws_transmit(LED_4, image->mouth, 60 * 3);
 }
 
 /*
@@ -70,21 +74,23 @@ int main(void)
 	// set CPU to 16MHz
 	//NVMCTRL_REGS->NVMCTRL_CTRLB = NVMCTRL_CTRLB_MANW(1) | NVMCTRL_CTRLB_RWS(1);
 	OSCCTRL_REGS->OSCCTRL_OSC48MDIV = OSCCTRL_OSC48MDIV_DIV_DIV3;
-    while (OSCCTRL_REGS->OSCCTRL_OSC48MSYNCBUSY) {}
+	while (OSCCTRL_REGS->OSCCTRL_OSC48MSYNCBUSY)
+	{
+	}
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
-	
+
 	drv_nrf_init_ports();
-    drv_nrf_init_spi();
-			
+	drv_nrf_init_spi();
+
 	// wait a second in case our code is bad, hopefully enough time to get into the debugger
 	delay_ms(1000);
-	
+
 	ws_init_pins();
 
 	spi_res = nrf_read_op(NRF_CMD_NOP, 0, NULL);
 	// by default, radio channel is 2.402GHz
-	spi_res = nrf_write_reg(NRF_REG_RF_CH, 76);//actually 2.476?
+	spi_res = nrf_write_reg(NRF_REG_RF_CH, 76); //actually 2.476?
 	// by default, auto-ack is enabled
 	// by default, data pipe 0 and 1 is enabled
 	// by default, auto-retransmit 3 times, 250us apart
@@ -103,37 +109,38 @@ int main(void)
 	// set other visual if it failed
 	if (spi_res != (NRF_REG_CONFIG_EN_CRC | NRF_REG_CONFIG_CRCO_CRC16 | NRF_REG_CONFIG_PRIM_RX | NRF_REG_CONFIG_PWR_UP))
 		displayMode = ERROR_WIRELESS;
-	
+
 	// set up receive pipe
 	const char addr[] = "00001";
-	spi_res = nrf_write_op(NRF_CMD_W_REGISTER | NRF_REG_RX_ADDR_P0, 5, (const uint8_t *)addr);
+	spi_res = nrf_write_op(NRF_CMD_W_REGISTER | NRF_REG_RX_ADDR_P0, 5, (const uint8_t *) addr);
 	spi_res = nrf_write_reg(NRF_REG_RX_PW_P0, 32);
-	
+
 	// enable receiver
 	nrf_enable_rxtx();
-    
-    // initial display draw
-    display_image(displayConfig[displayMode]);
-	
+
+	// initial display draw
+	display_image(displayConfig[displayMode]);
+
 	while (1)
 	{
-        
+
 		// check for message
 		spi_res = nrf_read_op(NRF_CMD_NOP, 0, NULL);
 		if (spi_res & NRF_REG_STATUS_RX_DR)
-		{		
+		{
 			uint8_t width;
 			spi_res = nrf_read_op(NRF_CMD_R_RX_PL_WID, 1, &width);
 			width = (width > 32) ? 32 : width;
 			spi_res = nrf_read_op(NRF_CMD_R_RX_PAYLOAD, width, rx_data);
-            
-            const enum display_target prevDisplayMode = displayMode;
-			
+
+			const enum display_target prevDisplayMode = displayMode;
+
 			// toggle visual
 			if (rx_data[0] == 1)
 			{
-                
-				if (rx_data[1] & 0x2) {
+
+				if (rx_data[1] & 0x2)
+				{
 					// down
 					if (displayMode > 0)
 						displayMode--;
@@ -141,25 +148,25 @@ int main(void)
 				else if (rx_data[1] & 1)
 				{
 					// up
-					if (displayMode < DISPLAY_COUNT-1)
+					if (displayMode < DISPLAY_COUNT - 1)
 						displayMode++;
 				}
 				else
 				{
 					//cycle
-                    if (++displayMode >= DISPLAY_COUNT)
-                        displayMode = (enum display_target)0U;
+					if (++displayMode >= DISPLAY_COUNT)
+						displayMode = (enum display_target)0U;
 				}
 			}
-			
+
 			nrf_write_reg(NRF_REG_STATUS, NRF_REG_STATUS_RX_DR);
-            
-            // update the screen if needed
-            if (prevDisplayMode != displayMode)
-            {
-                display_image(displayConfig[displayMode]);
-            }
+
+			// update the screen if needed
+			if (prevDisplayMode != displayMode)
+			{
+				display_image(displayConfig[displayMode]);
+			}
 		}
-        delay_ms(10); // note display_image adds 7ms delay when its called. should replace with systick/rtos
+		delay_ms(10); // note display_image adds 7ms delay when its called. should replace with systick/rtos
 	}
 }

@@ -10,27 +10,18 @@
 
 #include <stdint.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-    
 enum ws_led_strip {
     LED_0,
     LED_1,
     LED_2,
     LED_3,
     LED_4,
-    
+
     LED_COUNT
 };
 
 void ws_init_pins(void);
 void ws_transmit(enum ws_led_strip led, const uint8_t *data, int length);
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* DRV_WS2812B_H */
 
