@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug rinaboot",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/rinaboot.elf",
+            "args": [],
+            "debugServerArgs": "-f ${workspaceFolder}/openocd.cfg",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "debugServerPath": "C:/Program Files/Cypress/Cypress Programmer 4.2/openocd/bin/openocd.exe",
+            "miDebuggerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/bin/arm-none-eabi-gdb.exe",
+            "setupCommands": [
+                { "text": "cd ${workspaceRoot}/build" },
+                { "text": "file rinaboot.elf", "description": "load file", "ignoreFailures": false},
+                { "text": "target extended-remote localhost:3333", "description": "connect to target", "ignoreFailures": false },
+                { "text": "monitor reset halt", "description": "perform a reset and halt the target", "ignoreFailures": false },
+                { "text": "load", "description": "flash target", "ignoreFailures": false },
+                { "text": "monitor reset init", "description": "perform a reset and init the target", "ignoreFailures": false },
+                { "text": "set output-radix 16", "description": "set the default numeric base to 16", "ignoreFailures": false }
+            ],
+            "logging": {
+                "moduleLoad": true,
+                "trace": true,
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true
+            }
+        }
+    ]
+}
