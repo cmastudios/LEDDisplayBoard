@@ -24,7 +24,8 @@ static inline void blit1(__IO uint32_t * outset, __IO uint32_t * outclr, uint32_
 	*outset = port; // 10 insts
 	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 	*outclr = port; // 10 insts
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	// asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 }
 
 void ws_init_pins(void)

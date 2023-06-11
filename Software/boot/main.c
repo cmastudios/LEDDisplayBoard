@@ -10,8 +10,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sam.h>
+#include "system_samc21.h"
 #include "drv_nrf24l01.h"
 #include "drv_ws2812b.h"
+#include "drv_adc.h"
+#include "drv_supc.h"
 #include "images.h"
 
 static inline void delay_cycles(const uint32_t n)
@@ -36,7 +39,8 @@ static inline void delay_cycles(const uint32_t n)
 
 static uint8_t spi_res = 0;
 static uint8_t rx_data[32] = {0};
-static union image temp_image = { .raw = { [0 ... 659] = 3} };
+static union image temp_image = { .raw = { 0U } };
+static const union image blank_image = { .raw = { 0U } };
 
 enum display_target
 {
@@ -50,6 +54,10 @@ enum display_target
 	FACE_WINK,
 	ERROR_BATTERY,
 	ERROR_WIRELESS,
+	WHITE,
+	RED,
+	GREEN,
+	BLUE,
 
 	DISPLAY_FLASH_COUNT,
     
@@ -77,6 +85,10 @@ static const union image * displayConfig[DISPLAY_FLASH_COUNT] = {
 	[FACE_WINK] = &image_wink,
 	[ERROR_BATTERY] = &image_lowbattery,
 	[ERROR_WIRELESS] = &image_wirelesserror,
+	[WHITE] = &image_white,
+	[RED] = &image_red,
+	[GREEN] = &image_green,
+	[BLUE] = &image_blue,
 };
 
 union ram_face
@@ -113,8 +125,8 @@ static void decompress_ram_face(const union ram_face * ram_face, union image * o
         const bool is_active = (raw_byte & (1U << (pixel_i % 8U))) != 0U;
         if (is_active)
         {
-            output->raw[pixel_i * 3 + 0] = 255U/10;
-            output->raw[pixel_i * 3 + 1] = 78U/10;
+            output->raw[pixel_i * 3 + 1] = 255U/10;
+            output->raw[pixel_i * 3 + 0] = 78U/10;
             output->raw[pixel_i * 3 + 2] = 158U/10;
         }
         else
@@ -128,6 +140,8 @@ static void decompress_ram_face(const union ram_face * ram_face, union image * o
 
 static void display(enum display_target target)
 {
+	// first blank the screen
+	display_image(&blank_image);
     if (target < DISPLAY_FLASH_COUNT)
     {
         display_image(displayConfig[target]);
@@ -155,9 +169,11 @@ int main(void)
 	while (OSCCTRL_REGS->OSCCTRL_OSC48MSYNCBUSY)
 	{
 	}
+	SystemCoreClock = 16000000U;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
-
+	drv_supc_init();
+	drv_adc_init();
 	drv_nrf_init_ports();
 	drv_nrf_init_spi();
 
@@ -168,7 +184,7 @@ int main(void)
 
 	spi_res = nrf_read_op(NRF_CMD_NOP, 0, NULL);
 	// by default, radio channel is 2.402GHz
-	spi_res = nrf_write_reg(NRF_REG_RF_CH, 76); //actually 2.476? should change to <2450 so we're part97
+	spi_res = nrf_write_reg(NRF_REG_RF_CH, 21); //actually 2.476? should change to <2450 so we're part97
 	// by default, auto-ack is enabled
 	// by default, data pipe 0 and 1 is enabled
 	// by default, auto-retransmit 3 times, 250us apart
@@ -196,10 +212,17 @@ int main(void)
 	nrf_enable_rxtx();
 
 	// initial display draw
-	display_image(displayConfig[displayMode]);
+	display(displayMode);
 
 	while (1)
 	{
+		// read vbat
+		const int batt_raw = drv_adc_read(0);
+		const int batt_mv = (1024*4096)/batt_raw;
+
+		// run SM
+		const enum display_target prevDisplayMode = displayMode;
+		bool redraw = false;
 
 		// check for message
 		spi_res = nrf_read_op(NRF_CMD_NOP, 0, NULL);
@@ -209,9 +232,6 @@ int main(void)
 			spi_res = nrf_read_op(NRF_CMD_R_RX_PL_WID, 1, &width);
 			width = (width > 32) ? 32 : width;
 			spi_res = nrf_read_op(NRF_CMD_R_RX_PAYLOAD, width, rx_data);
-
-			const enum display_target prevDisplayMode = displayMode;
-
 			
 			if (rx_data[0] == 1)
 			{
@@ -234,6 +254,7 @@ int main(void)
 					if (++displayMode >= DISPLAY_COUNT)
 						displayMode = (enum display_target)0U;
 				}
+				redraw = (displayMode != prevDisplayMode);
 			}
             else if (rx_data[0] == 2)
             {
@@ -242,17 +263,25 @@ int main(void)
                 if (target < DISPLAY_RAM_COUNT)
                 {
                     memcpy(ram_face[target].raw, &rx_data[2], 28);
+					displayMode = target + FACE_RAM_0;
+					redraw = true;
                 }
             }
 
 			nrf_write_reg(NRF_REG_STATUS, NRF_REG_STATUS_RX_DR);
-
-			// update the screen if needed
-			if (prevDisplayMode != displayMode)
-			{
-                display(displayMode);
-			}
 		}
+
+		if ((batt_mv < 3200) || (batt_mv > 4300))
+		{
+			displayMode = ERROR_BATTERY;
+			redraw = (displayMode != prevDisplayMode);
+		}		
+		// update the screen if needed
+		if (redraw)
+		{
+			display(displayMode);
+		}
+
 		delay_ms(10); // note display_image adds 7ms delay when its called. should replace with systick/rtos
 	}
 }

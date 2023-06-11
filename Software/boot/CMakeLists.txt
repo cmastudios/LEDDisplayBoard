@@ -16,6 +16,8 @@ add_executable(${PROJECT_NAME}.elf
 	main.c
 	drv_nrf24l01.c
 	drv_ws2812b.c
+	drv_adc.c
+	drv_supc.c
 )
 
 
