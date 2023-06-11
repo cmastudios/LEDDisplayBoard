@@ -11,6 +11,10 @@ set(IMAGES
     ${CMAKE_CURRENT_SOURCE_DIR}/wink.png
     ${CMAKE_CURRENT_SOURCE_DIR}/wirelesserror.png
     ${CMAKE_CURRENT_SOURCE_DIR}/lowbattery.png
+    ${CMAKE_CURRENT_SOURCE_DIR}/white.png
+    ${CMAKE_CURRENT_SOURCE_DIR}/red.png
+    ${CMAKE_CURRENT_SOURCE_DIR}/green.png
+    ${CMAKE_CURRENT_SOURCE_DIR}/blue.png
 )
 
 add_custom_command(
