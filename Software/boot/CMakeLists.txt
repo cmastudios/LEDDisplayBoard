@@ -7,11 +7,13 @@ project(rinaboot LANGUAGES ASM C CXX)
 
 
 add_subdirectory(external/atsamc21j18a)
+add_subdirectory(images)
 
 
 add_executable(${PROJECT_NAME}.elf
 	$<TARGET_OBJECTS:samc21j18a>
-    main.c
+	$<TARGET_OBJECTS:images>
+	main.c
 	drv_nrf24l01.c
 	drv_ws2812b.c
 )
@@ -19,7 +21,7 @@ add_executable(${PROJECT_NAME}.elf
 
 
 target_link_libraries(${PROJECT_NAME}.elf
-    PUBLIC samc21j18a
+    PUBLIC samc21j18a images
 )
 
 

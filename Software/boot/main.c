@@ -36,7 +36,7 @@ static inline void delay_cycles(const uint32_t n)
 
 static uint8_t spi_res = 0;
 static uint8_t rx_data[32] = {0};
-static union image temp_image = {0};
+static union image temp_image = { .raw = { [0 ... 659] = 3} };
 
 enum display_target
 {
@@ -67,7 +67,6 @@ enum display_target
 } displayMode = FACE_DEFAULT;
 
 static const union image * displayConfig[DISPLAY_FLASH_COUNT] = {
-	#if 0
 	[FACE_DEFAULT] = &image_face,
 	[FACE_HAPPY] = &image_happy,
 	[FACE_LOVE] = &image_love,
@@ -76,11 +75,8 @@ static const union image * displayConfig[DISPLAY_FLASH_COUNT] = {
 	[FACE_TIRED] = &image_tired,
 	[FACE_UWU] = &image_uwu,
 	[FACE_WINK] = &image_wink,
-	[ERROR_BATTERY] = &image_error_battery,
-	[ERROR_WIRELESS] = &image_error_wireless,
-	#else
-	NULL
-	#endif
+	[ERROR_BATTERY] = &image_lowbattery,
+	[ERROR_WIRELESS] = &image_wirelesserror,
 };
 
 union ram_face
