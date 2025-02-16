@@ -9,8 +9,9 @@ import glob
 import os
 import sys
 
+hdr_name = sys.argv[2]
 f = open(sys.argv[1], "w")
-h = open(sys.argv[2], "w")
+h = open(hdr_name, "w")
 
 header = """
 #pragma once
@@ -25,9 +26,7 @@ typedef union image {
 } image_U;
 """
 h.write(header)
-source = """
-#include "images.h"
-"""
+source = f'\n#include "{os.path.basename(hdr_name)}"\n'
 f.write(source)
 variables = []
 

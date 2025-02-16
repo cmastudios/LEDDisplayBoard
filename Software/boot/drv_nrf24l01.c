@@ -97,7 +97,7 @@ uint8_t nrf_read_op(uint8_t command, int length, uint8_t *output)
 	}
 	PORT_REGS->GROUP[NRF_CE_CSN_GROUP].PORT_OUTSET = NRF_CSN_PORT;
 	// CSN must go high for a certain minimum duration between commands
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 	return status;
 }
 
@@ -110,7 +110,7 @@ uint8_t nrf_write_op(uint8_t command, int length, const uint8_t *input)
 		spi_xfer(input[i]);
 	}
 	PORT_REGS->GROUP[NRF_CE_CSN_GROUP].PORT_OUTSET = NRF_CSN_PORT;
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 	return status;
 }
 

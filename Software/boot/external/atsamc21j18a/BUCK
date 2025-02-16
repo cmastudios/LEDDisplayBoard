@@ -1,0 +1,14 @@
+load("//:subdir_glob.bzl", "subdir_glob")
+cxx_library(
+    name = "lib",
+    srcs = ["startup_samc21j18a.c", "system_samc21j18a.c"],
+    include_directories = ["include", "CMSIS/include"],
+    exported_headers = subdir_glob([
+        ('include', '**/*.h'),
+        ('CMSIS/Include', '**/*.h')
+    ]),
+    header_namespace = "",
+    link_style = "static_pic",
+    exported_linker_flags = ["-Wl,-T,$(source samc21j18a_flash.ld)"],
+    visibility = ["PUBLIC"]
+)

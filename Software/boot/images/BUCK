@@ -1,0 +1,16 @@
+
+load("rules.bzl", "build_images_c")
+build_images_c(
+    name = "images",
+    script = "build.py",
+    sources = glob(["*.png"]),
+)
+cxx_library(
+    name = "lib",
+    srcs = [":images"],
+    headers = [":images[h]"],
+    exported_headers = [":images[h]"],
+    header_namespace = "",
+    link_style = "static_pic",
+    visibility = ["PUBLIC"]
+)

@@ -1,6 +1,7 @@
 .vs/
 
 Debug/
+buck-out/
 *.d
 *.pre
 *.p1

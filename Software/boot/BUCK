@@ -1,0 +1,19 @@
+load("//:rules.bzl", "gnu_hex")
+
+
+cxx_binary(
+    name = "app",
+    srcs = ["main.c", "drv_nrf24l01.c", "drv_ws2812b.c", "drv_adc.c", "drv_supc.c"],
+    link_style = "static",
+    linker_flags = ["-Wl,--undefined=exception_table"],
+    deps = [
+        "//Software/boot/external/atsamc21j18a:lib",
+        "//Software/boot/images:lib"
+    ],
+    visibility = ["PUBLIC"],
+)
+gnu_hex(
+    name = "app_hex",
+    elf = ":app",
+    visibility = ["PUBLIC"],
+)

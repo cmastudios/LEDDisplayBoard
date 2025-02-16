@@ -1,5 +1,5 @@
 #include "drv_ws2812b.h"
-#include <sam.h>
+#include <samc21j18a.h>
 
 static const uint32_t ledConfig[LED_COUNT] = {
 	[LED_0] = PIN_PA08,
@@ -13,19 +13,19 @@ static inline void blit0(__IO uint32_t * outset, __IO uint32_t * outclr, uint32_
 {
 	// Critical timing, depends on 16MHz CPU clock
 	*outset = port; // 15 insts
-	asm("nop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\n");
 	*outclr = port;
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 }
 
 static inline void blit1(__IO uint32_t * outset, __IO uint32_t * outclr, uint32_t port)
 {
 	// this is specific to WS2812B V5 timing -- need to change for regular WS2812B
 	*outset = port; // 10 insts
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 	*outclr = port; // 10 insts
-	// asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
-	asm("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	// __asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
+	__asm__("nop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\nnop\r\n");
 }
 
 void ws_init_pins(void)

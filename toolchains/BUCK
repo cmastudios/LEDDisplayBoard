@@ -1,0 +1,51 @@
+load("//:gnu_toolchain.bzl", "path_gnu_tools")
+load("@prelude//toolchains:python.bzl", "system_python_bootstrap_toolchain", "system_python_toolchain")
+load("//:cxx.bzl", "cxx_tools_info_toolchain")
+
+
+
+path_gnu_tools(
+    name = "gnu_arm_latest_path",
+    prefix = r"arm-none-eabi-",
+    visibility = ["PUBLIC"]
+)
+
+
+cxx_tools_info_toolchain(
+    name = "cxx",
+    cxx_tools_info = ":gnu_arm_latest_path",
+    c_flags = ["-D__SAMC21J18A__", "-mthumb", "-mcpu=cortex-m0plus", "-O3", "-ffunction-sections", "-fdata-sections", "-fomit-frame-pointer", "-std=c11"],
+    link_flags = ["-mthumb", "-mcpu=cortex-m0plus", "-Wl,--gc-sections", "-lc", "--specs=nosys.specs", "--specs=nano.specs"],
+    visibility = ["PUBLIC"]
+)
+
+system_python_toolchain(
+    name = "python",
+    interpreter = "python",
+    visibility = ["PUBLIC"],
+)
+
+system_python_bootstrap_toolchain(
+    name = "python_bootstrap",
+    visibility = ["PUBLIC"],
+)
+# gnu_arm_prefix = r"C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.3 rel1\bin\arm-none-eabi-"
+# cxx_toolchain(
+#     name = "cxx",
+#     archiver = gnu_arm_prefix + "ar",
+#     archiver_type = "gnu",
+#     assembler = gnu_arm_prefix + "as",
+#     assembler_type = "gnu",
+#     c_compiler = gnu_arm_prefix + "gcc",
+#     c_compiler_type = "gnu",
+#     cxx_compiler = gnu_arm_prefix + "g++",
+#     cxx_compiler_type = "gnu",
+#     linker = gnu_arm_prefix + "g++",
+#     linker_type = "gnu",
+#     nm = gnu_arm_prefix + "nm",
+#     objcopy_for_shared_library_interface = gnu_arm_prefix + "objcopy",
+#     objdump = gnu_arm_prefix + "objdump",
+#     shared_library_interface_type = "disabled",
+#     strip = gnu_arm_prefix + "strip",
+#     visibility = ["PUBLIC"],
+# )
